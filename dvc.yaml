@@ -1,0 +1,25 @@
+vars:
+  - in_dir: ./data/raw/in
+  - data_dir: ./data/raw
+
+stages:
+  download_data:
+    cmd: kaggle competitions download -c platesv2 -p ${in_dir}
+    outs:
+    - ${in_dir}/platesv2.zip:
+        cache: false
+        persist: true
+  
+  extract_data:
+    vars:
+      - ./configs/extract_data.yaml:out_dir
+    cmd: python ./extract_data.py
+    deps:
+      - ${in_dir}/platesv2.zip
+      - ./extract_data.py
+      - ./configs/extract_data.yaml
+      - ./configs/data/plates.yaml
+    outs:
+      - ${out_dir}
+
+  

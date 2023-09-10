@@ -1,0 +1,5 @@
+matplotlib~=3.7
+ipykernel
+polars~=0.19.2
+seaborn~=0.12.2
+pandas[pyarrow]~=2.1.0

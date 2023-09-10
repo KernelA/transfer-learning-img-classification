@@ -1,7 +1,7 @@
 import logging
 
 import pytest
-from stepik_tr_learn.log_set import init_logging
+from tr_learn.log_set import init_logging
 
 init_logging("./log_settings.yaml")
 

@@ -1,0 +1,6 @@
+_target_: lightning.pytorch.loggers.WandbLogger
+project: 'plates-cls'
+log_model: true
+settings:
+  _target_: wandb.Settings
+  _disable_stats: true

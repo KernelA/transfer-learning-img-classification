@@ -1,0 +1,10 @@
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+defaults:
+  - data: plates
+  - _self_
+
+out_dir: ./data/raw/plates

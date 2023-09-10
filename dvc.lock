@@ -1,0 +1,34 @@
+schema: '2.0'
+stages:
+  download_data:
+    cmd: kaggle competitions download -c platesv2 -p ./data/raw/in
+    outs:
+    - path: ./data/raw/in/platesv2.zip
+      hash: md5
+      md5: b93a300cde18590c34da5f67fadffbb9
+      size: 49320836
+  extract_data:
+    cmd: python ./extract_data.py
+    deps:
+    - path: ./configs/data/plates.yaml
+      hash: md5
+      md5: 48f73c9eca81fe21347e94d1476743be
+      size: 40
+    - path: ./configs/extract_data.yaml
+      hash: md5
+      md5: 50088e2cf61a75c84a6795bc6cc5f9ff
+      size: 122
+    - path: ./data/raw/in/platesv2.zip
+      hash: md5
+      md5: b93a300cde18590c34da5f67fadffbb9
+      size: 49320836
+    - path: ./extract_data.py
+      hash: md5
+      md5: c696b490d3cd6ee32681c1b7793b64a0
+      size: 1369
+    outs:
+    - path: ./data/raw/plates
+      hash: md5
+      md5: e1d6a5eabc2c4a79c5354651bd095cad.dir
+      size: 49307920
+      nfiles: 784

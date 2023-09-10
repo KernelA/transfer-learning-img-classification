@@ -1,0 +1,6 @@
+_target_: tr_learn.data.datamodule.PlateDataModuleTrain
+train_load_info:
+  _target_: tr_learn.data.datamodule.LoadInfo
+  root: ./data/raw/plates/train
+  batch_size: ???
+  transform: ???
