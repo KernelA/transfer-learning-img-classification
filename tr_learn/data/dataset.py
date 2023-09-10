@@ -52,7 +52,7 @@ class PlateDataset(data.Dataset):
     def labels(self):
         return self._labels
 
-    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+    def __getitem__(self, index: int) -> Tuple[Any, int, str]:
         if self._images:
             image = self._images[index]
         else:
@@ -61,7 +61,7 @@ class PlateDataset(data.Dataset):
         if self._transform is not None:
             image = self._transform(image)
 
-        return image, self._labels[index]
+        return image, self._labels[index], os.path.splitext(os.path.basename(self._image_paths[index]))[0]
 
     @classmethod
     def inv_label_mapping(cls):

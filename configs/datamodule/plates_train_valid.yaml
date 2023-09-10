@@ -2,7 +2,7 @@ _target_: tr_learn.data.datamodule.PlateDataModuleTrainValid
 train_load_info:
   _target_: tr_learn.data.datamodule.LoadInfo
   is_jit_transform: true
-  root: ./data/raw/plates/train
+  root: ./data/raw/plates
   batch_size: ???
   transform: ???
 valid_load_info:
@@ -11,5 +11,12 @@ valid_load_info:
   is_jit_transform: ${..train_load_info.is_jit_transform}
   batch_size: ???
   transform: ???
+predict_load_info:
+  _target_: tr_learn.data.datamodule.LoadInfo
+  root: ${..train_load_info.root}
+  is_jit_transform: ${..train_load_info.is_jit_transform}
+  batch_size: 8
+  transform: ???
+  num_workers: 4
 train_size: 0.8
 split_random_seed: 834_823

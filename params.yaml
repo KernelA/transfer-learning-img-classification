@@ -1,0 +1,144 @@
+optimizer:
+  _target_: torch.optim.AdamW
+  lr: 1.0e-05
+  amsgrad: true
+model:
+  _target_: tr_learn.model.cls_model.PlateClassification
+  is_full_train: false
+  resnet_type: resnet18
+datamodule:
+  _target_: tr_learn.data.datamodule.PlateDataModuleTrainValid
+  train_load_info:
+    _target_: tr_learn.data.datamodule.LoadInfo
+    is_jit_transform: true
+    root: ./data/raw/plates
+    batch_size: 10
+    transform: ???
+  valid_load_info:
+    _target_: tr_learn.data.datamodule.LoadInfo
+    root: ./data/raw/plates
+    is_jit_transform: true
+    batch_size: 64
+    transform: ???
+  predict_load_info:
+    _target_: tr_learn.data.datamodule.LoadInfo
+    root: ./data/raw/plates
+    is_jit_transform: true
+    batch_size: 8
+    transform:
+      _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.Resize
+        _convert_: partial
+        antialias: true
+        size:
+        - 224
+      - _target_: torchvision.transforms.CenterCrop
+        size: 224
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    num_workers: 4
+  train_size: 0.8
+  split_random_seed: 834823
+transforms:
+  image_norm_mean:
+  - 0.485
+  - 0.456
+  - 0.406
+  image_norm_std:
+  - 0.229
+  - 0.224
+  - 0.225
+  train_transform:
+    _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.Resize
+      _convert_: partial
+      antialias: true
+      size:
+      - 224
+    - _target_: torchvision.transforms.RandomHorizontalFlip
+      p: 0.5
+    - _target_: torchvision.transforms.CenterCrop
+      size: 224
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  valid_transform:
+    _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.Resize
+      _convert_: partial
+      antialias: true
+      size:
+      - 224
+    - _target_: torchvision.transforms.CenterCrop
+      size: 224
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+logger:
+  _target_: lightning.pytorch.loggers.WandbLogger
+  project: plates-cls
+  log_model: true
+  settings:
+    _target_: wandb.Settings
+    _disable_stats: true
+loss:
+  _target_: torch.nn.BCEWithLogitsLoss
+  reduction: none
+exp_dir: ./exp/cls_training
+trainer:
+  _target_: lightning.Trainer
+  accelerator: gpu
+  precision: '32'
+  fast_dev_run: false
+  max_epochs: 10
+  check_val_every_n_epoch: 1
+  log_every_n_steps: 1
+  benchmark: true
+  inference_mode: true
+  logger:
+  - _target_: lightning.pytorch.loggers.WandbLogger
+    project: plates-cls
+    log_model: true
+    settings:
+      _target_: wandb.Settings
+      _disable_stats: true
+  callbacks:
+  - _target_: lightning.pytorch.callbacks.LearningRateMonitor
+    logging_interval: epoch
+  - _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    save_top_k: 2
+    mode: max
+    monitor: Train/accuracy
+    dirpath: ./exp/cls_training/checkpoints
+    filename: '{epoch}-{Train/accuracy:.2f}'
+    save_last: true
+    save_weights_only: true
+    every_n_epochs: 1

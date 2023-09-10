@@ -32,3 +32,25 @@ stages:
       md5: e1d6a5eabc2c4a79c5354651bd095cad.dir
       size: 49307920
       nfiles: 784
+  train:
+    cmd: python ./train.py
+    deps:
+    - path: ./data/raw/plates
+      hash: md5
+      md5: e1d6a5eabc2c4a79c5354651bd095cad.dir
+      size: 49307920
+      nfiles: 784
+    - path: ./train.py
+      hash: md5
+      md5: e1c140e506db492a98c42774375e5af8
+      size: 2118
+    - path: params.yaml
+      hash: md5
+      md5: 58e615c67a4900a41055b2a9380ed39e
+      size: 3619
+    outs:
+    - path: ./exp/cls_training
+      hash: md5
+      md5: cd51fcf656c02c8831d7fdff4dcb42aa.dir
+      size: 134376363
+      nfiles: 4

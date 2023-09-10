@@ -22,4 +22,15 @@ stages:
     outs:
       - ${out_dir}
 
+  train:
+    vars:
+      - ./configs/extract_data.yaml:out_dir
+    cmd: python ./train.py
+    deps:
+      - ./train.py
+      - params.yaml
+      - ${out_dir}
+    outs:
+      - ${exp_dir}
+
   

@@ -18,6 +18,7 @@ class LoadInfo:
     batch_size: int
     is_jit_transform: bool
     transform: Callable[[torch.Tensor], torch.Tensor]
+    num_workers: int = 0
 
     def __post_init__(self):
         if self.is_jit_transform:
@@ -27,11 +28,13 @@ class LoadInfo:
 class PlateDataModuleTrain(L.LightningDataModule):
     def __init__(self,
                  train_load_info: LoadInfo,
+                 predict_load_info: LoadInfo,
                  ) -> None:
         super().__init__()
-
+        self._predict_load_info = predict_load_info
         self._train_load_info = train_load_info
         self._train_dataset = None
+        self._predict_dataset = None
 
     def setup(self, stage: str) -> None:
         if stage == "fit" and self._train_dataset is None:
@@ -39,6 +42,12 @@ class PlateDataModuleTrain(L.LightningDataModule):
                 self._train_load_info.root,
                 SplitType.train,
                 self._train_load_info.transform)
+        elif stage == "predict" and self._predict_dataset is None:
+            self._predict_dataset = PlateDataset(
+                self._predict_load_info.root,
+                split_type=SplitType.test,
+                transform=self._predict_load_info.transform
+            )
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
         assert self._train_dataset is not None
@@ -50,16 +59,27 @@ class PlateDataModuleTrain(L.LightningDataModule):
             shuffle=True
         )
 
+    def predict_dataloader(self):
+        assert self._predict_dataset is not None
+        return data.DataLoader(
+            self._predict_dataset,
+            batch_size=self._predict_load_info.batch_size,
+            shuffle=False,
+            drop_last=False,
+            pin_memory=True
+        )
+
 
 class PlateDataModuleTrainValid(PlateDataModuleTrain):
     def __init__(self,
                  train_load_info: LoadInfo,
+                 predict_load_info: LoadInfo,
                  valid_load_info: LoadInfo,
                  train_size: float,
                  split_random_seed: int,
                  ) -> None:
         assert 0 < train_size <= 1
-        super().__init__(train_load_info)
+        super().__init__(train_load_info, predict_load_info)
         self._train_load_info = train_load_info
         self._valid_load_info = valid_load_info
         self._train_size = train_size
@@ -85,6 +105,8 @@ class PlateDataModuleTrainValid(PlateDataModuleTrain):
             super().setup("fit")
             if self._train_dataset is None or self._valid_dataset is None:
                 self._train_dataset, self._valid_dataset = self._split_train_on_train_valid()
+        else:
+            super().setup(stage)
 
     def val_dataloader(self) -> EVAL_DATALOADERS:
         assert self._valid_dataset is not None

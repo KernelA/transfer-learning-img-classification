@@ -15,9 +15,11 @@ defaults:
 
 datamodule:
   train_load_info:
-    batch_size: 16
+    batch_size: 10
   valid_load_info:
     batch_size: 64
+  predict_load_info:
+    transform: ${transforms.valid_transform}
 
 exp_dir: ./exp/cls_training
 

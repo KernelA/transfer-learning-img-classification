@@ -1,0 +1,9 @@
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+
+train_config_path: ./exp/cls_training/config.yaml
+subm_dir: ./data/subm
+threshold: 0.5
