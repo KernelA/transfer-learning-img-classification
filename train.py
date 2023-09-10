@@ -1,3 +1,4 @@
+import os
 import pathlib
 
 import hydra
@@ -42,7 +43,13 @@ def main(config):
 
     if isinstance(trainer.logger, WandbLogger):
         trainer.logger.experiment.config.update(OmegaConf.to_object(config))
+        dvc_exp_name = os.environ.get("DVC_EXP_NAME")
+
         cls_config = {"class_mapping": PlateDataset.get_label_mapping()}
+
+        if dvc_exp_name:
+            cls_config["dvc_exp_name"] = dvc_exp_name
+
         trainer.logger.experiment.config.update(cls_config)
 
     trainer.fit(base_model, datamodule=datamodule)
