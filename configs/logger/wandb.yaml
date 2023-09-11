@@ -4,4 +4,4 @@ name: null
 log_model: true
 settings:
   _target_: wandb.Settings
-  _disable_stats: true
+  _disable_stats: false
