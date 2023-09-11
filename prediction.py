@@ -64,21 +64,13 @@ def load_from_wandb(entity: str, path: str):
 
     artifacts = run.logged_artifacts()
 
-    train_config = None
+    train_config = OmegaConf.create(run.config)
     checkpoints = []
 
-    for artifact in filter(lambda x: x.type in ("model", "config"), artifacts):
-        if artifact.type == "config":
-            path_to_config = artifact.file()
-            with open(path_to_config, "r", encoding="utf-8") as f:
-                train_config = OmegaConf.load(f)
-        else:
-            name = os.path.splitext(artifact.metadata["original_filename"])[0]
-            path_to_checkpoint = artifact.file()
-            checkpoints.append(CheckpointInfo(path_to_checkpoint, name))
-
-    if train_config is None:
-        raise RuntimeError("Cannot find 'train_config' as metadata")
+    for artifact in filter(lambda x: x.type == "model", artifacts):
+        name = os.path.splitext(artifact.metadata["original_filename"])[0]
+        path_to_checkpoint = artifact.file()
+        checkpoints.append(CheckpointInfo(path_to_checkpoint, name))
 
     return InferInfo(train_config, checkpoints)
 
