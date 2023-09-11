@@ -1,8 +1,9 @@
 import torch
 from torchvision.models import (DenseNet201_Weights, EfficientNet_V2_L_Weights,
-                                ResNet18_Weights, ResNet34_Weights,
-                                ResNet50_Weights, ResNet101_Weights,
-                                densenet201, efficientnet_v2_l, resnet18,
+                                EfficientNet_V2_S_Weights, ResNet18_Weights,
+                                ResNet34_Weights, ResNet50_Weights,
+                                ResNet101_Weights, densenet201,
+                                efficientnet_v2_l, efficientnet_v2_s, resnet18,
                                 resnet34, resnet50, resnet101)
 
 
@@ -46,7 +47,7 @@ class EfficientNetAdapter(BaseAdapter):
     def __init__(self, model_factory, weight, is_full_train: bool):
         model = model_factory(weights=weight.DEFAULT)
         model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1, bias=False)
-        super().__init__(model, model.classifier[1], is_full_train)
+        super().__init__(model, model.classifier, is_full_train)
 
 
 MODEL_MAPPING = {
@@ -54,7 +55,8 @@ MODEL_MAPPING = {
     "resnet34": (ResNetAdapter, resnet34, ResNet34_Weights),
     "resnet50": (ResNetAdapter, resnet50, ResNet50_Weights),
     "resnet101": (ResNetAdapter, resnet101, ResNet101_Weights),
-    "efficient_net_v2_l": (EfficientNetAdapter, efficientnet_v2_l, EfficientNet_V2_L_Weights)
+    "efficient_net_v2_l": (EfficientNetAdapter, efficientnet_v2_l, EfficientNet_V2_L_Weights),
+    "efficient_net_v2_2": (EfficientNetAdapter, efficientnet_v2_s, EfficientNet_V2_S_Weights)
 }
 
 

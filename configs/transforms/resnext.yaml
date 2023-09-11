@@ -4,14 +4,20 @@ image_norm_std: ${.train_transform._args_[4].std}
 train_transform:
   _target_: torch.nn.Sequential
   _args_:
-    - _target_: torchvision.transforms.Resize
+    - _target_: torchvision.transforms.RandomHorizontalFlip
+      p: 0.5
+    - _target_: torchvision.transforms.RandomVerticalFlip
+      p: 0.5
+    - _target_: torchvision.transforms.RandomResizedCrop
       _convert_: 'partial'
       antialias: true
       size: [224]
-    - _target_: torchvision.transforms.RandomHorizontalFlip
+    - _target_: torchvision.transforms.RandomApply
+      _args_:
+        - _target_: torchvision.transforms.ColorJitter
+          hue: [0.1, 0.2]
+          brightness: [0.5, 1.5]
       p: 0.5
-    - _target_: torchvision.transforms.CenterCrop
-      size: 224
     - _target_: tr_learn.data.transforms.convert_dtype
     - _target_: torchvision.transforms.Normalize
       _convert_: 'partial'

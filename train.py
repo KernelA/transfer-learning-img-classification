@@ -14,6 +14,8 @@ from tr_learn.trainer.cls_trainer import ClsTrainer
 
 @hydra.main(".", "params", version_base="1.3")
 def main(config):
+    L.seed_everything(config.seed)
+
     exp_dir = pathlib.Path(config.exp_dir)
     exp_dir.mkdir(exist_ok=True, parents=True)
 
