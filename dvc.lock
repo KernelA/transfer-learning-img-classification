@@ -42,18 +42,18 @@ stages:
       nfiles: 784
     - path: ./train.py
       hash: md5
-      md5: a22c53fd241ddaec85920164c85c327b
-      size: 2668
+      md5: 5a15df27fbebb28844d9c642212d9b08
+      size: 2488
     - path: params.yaml
       hash: md5
-      md5: 70bd099e0bc3f218e2c23ee329f940b1
-      size: 3649
+      md5: 7209c35814807608acdb51ce649cb23f
+      size: 3651
     outs:
     - path: ./exp/cls_training
       hash: md5
-      md5: c43d2121d0fb2aff9eafa22019ee8f71.dir
-      size: 134376405
-      nfiles: 4
+      md5: 103112c248b1f249da4e992594ef9ca8.dir
+      size: 341302500
+      nfiles: 3
   prediction:
     cmd: python ./prediction.py
     deps:

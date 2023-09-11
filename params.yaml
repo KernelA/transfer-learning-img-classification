@@ -1,11 +1,11 @@
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 1.0e-05
+  lr: 0.001
   amsgrad: true
 model:
   _target_: tr_learn.model.cls_model.PlateClassification
   is_full_train: false
-  resnet_type: resnet18
+  resnet_type: resnet101
 datamodule:
   _target_: tr_learn.data.datamodule.PlateDataModuleTrainValid
   train_load_info:
@@ -109,7 +109,7 @@ logger:
   log_model: true
   settings:
     _target_: wandb.Settings
-    _disable_stats: true
+    _disable_stats: false
 loss:
   _target_: torch.nn.BCEWithLogitsLoss
   reduction: none
@@ -131,7 +131,7 @@ trainer:
     log_model: true
     settings:
       _target_: wandb.Settings
-      _disable_stats: true
+      _disable_stats: false
   callbacks:
   - _target_: lightning.pytorch.callbacks.LearningRateMonitor
     logging_interval: epoch
@@ -141,6 +141,6 @@ trainer:
     monitor: Train/accuracy
     dirpath: ./exp/cls_training/checkpoints
     filename: '{epoch}-{Train/accuracy:.2f}'
-    save_last: true
+    save_last: false
     save_weights_only: true
     every_n_epochs: 1
