@@ -39,7 +39,10 @@ class BaseAdapter(torch.nn.Module):
 class ResNetAdapter(BaseAdapter):
     def __init__(self, model_factory, weight, is_full_train: bool):
         model = model_factory(weights=weight.DEFAULT)
-        model.fc = torch.nn.Linear(model.fc.in_features, 1, bias=False)
+        model.fc = torch.nn.Sequential(
+            torch.nn.Dropout(),
+            torch.nn.Linear(model.fc.in_features, 1, bias=False)
+        )
         super().__init__(model, model.fc, is_full_train)
 
 
@@ -56,7 +59,7 @@ MODEL_MAPPING = {
     "resnet50": (ResNetAdapter, resnet50, ResNet50_Weights),
     "resnet101": (ResNetAdapter, resnet101, ResNet101_Weights),
     "efficient_net_v2_l": (EfficientNetAdapter, efficientnet_v2_l, EfficientNet_V2_L_Weights),
-    "efficient_net_v2_2": (EfficientNetAdapter, efficientnet_v2_s, EfficientNet_V2_S_Weights)
+    "efficient_net_v2_s": (EfficientNetAdapter, efficientnet_v2_s, EfficientNet_V2_S_Weights)
 }
 
 

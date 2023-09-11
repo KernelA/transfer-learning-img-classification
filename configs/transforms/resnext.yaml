@@ -1,5 +1,5 @@
-image_norm_mean: ${.train_transform._args_[4].mean}
-image_norm_std: ${.train_transform._args_[4].std}
+image_norm_mean: ${.train_transform._args_[5].mean}
+image_norm_std: ${.train_transform._args_[5].std}
 
 train_transform:
   _target_: torch.nn.Sequential
@@ -14,9 +14,15 @@ train_transform:
       size: [224]
     - _target_: torchvision.transforms.RandomApply
       _args_:
-        - _target_: torchvision.transforms.ColorJitter
-          hue: [0.1, 0.2]
-          brightness: [0.5, 1.5]
+        - _target_: torch.nn.ModuleList
+          modules:
+            - _target_: torchvision.transforms.ColorJitter
+              hue: 
+                _target_: tr_learn.data.transforms.to_tuple
+                items: [0.1, 0.2]
+              brightness:
+                _target_: tr_learn.data.transforms.to_tuple
+                items: [0.5, 1.5]
       p: 0.5
     - _target_: tr_learn.data.transforms.convert_dtype
     - _target_: torchvision.transforms.Normalize

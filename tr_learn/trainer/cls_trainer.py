@@ -132,7 +132,7 @@ class ClsTrainer(L.LightningModule):
         info = {"optimizer": optimizer}
 
         if self._scheduler_config is not None:
-            scheduler = hydra.utils.instantiate(optimizer)
+            scheduler = hydra.utils.instantiate(self._scheduler_config, optimizer)
             info["lr_scheduler"] = scheduler
 
         return [info]

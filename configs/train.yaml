@@ -11,7 +11,7 @@ defaults:
   - transforms: resnext
   - logger: wandb
   - loss: bce
-  - _self_s
+  - _self_
 
 datamodule:
   train_load_info:
