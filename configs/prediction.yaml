@@ -4,6 +4,6 @@ hydra:
   output_subdir: null
 
 
-train_config_path: ./exp/cls_training/config.yaml
+config_url: ./exp/cls_training/config.yaml # if wandb wandb://entity/project_name/run_name
 subm_dir: ./data/subm
 threshold: 0.5

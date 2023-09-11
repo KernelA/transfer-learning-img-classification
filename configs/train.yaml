@@ -49,7 +49,7 @@ trainer:
       monitor: 'Train/accuracy'
       dirpath: ${exp_dir}/checkpoints
       filename: '{epoch}-{Train/accuracy:.2f}'
-      save_last: true
+      save_last: false
       save_weights_only: true
       every_n_epochs: ${...check_val_every_n_epoch}
 

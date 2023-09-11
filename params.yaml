@@ -105,6 +105,7 @@ transforms:
 logger:
   _target_: lightning.pytorch.loggers.WandbLogger
   project: plates-cls
+  name: null
   log_model: true
   settings:
     _target_: wandb.Settings
@@ -126,6 +127,7 @@ trainer:
   logger:
   - _target_: lightning.pytorch.loggers.WandbLogger
     project: plates-cls
+    name: null
     log_model: true
     settings:
       _target_: wandb.Settings

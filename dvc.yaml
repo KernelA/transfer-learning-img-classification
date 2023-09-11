@@ -33,4 +33,13 @@ stages:
     outs:
       - ${exp_dir}
 
+  prediction:
+    vars:
+      - ./configs/prediction.yaml:subm_dir
+    cmd: python ./prediction.py
+    deps:
+      - ./configs/prediction.yaml
+    outs:
+      - ${subm_dir}
+
   

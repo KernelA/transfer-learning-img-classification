@@ -3,6 +3,7 @@ import pathlib
 
 import hydra
 import lightning as L
+from dotenv import load_dotenv
 from lightning.pytorch.loggers.wandb import WandbLogger
 from omegaconf import OmegaConf
 
@@ -36,24 +37,29 @@ def main(config):
                             image_mean=config.transforms.image_norm_mean,
                             image_std=config.transforms.image_norm_std)
 
+    dvc_exp_name = os.environ.get("DVC_EXP_NAME")
+
+    if dvc_exp_name:
+        for log_config in config.trainer.get("logger", []):
+            if log_config["_target_"] == "lightning.pytorch.loggers.WandbLogger":
+                log_config["name"] = dvc_exp_name
+
     trainer: L.Trainer = hydra.utils.instantiate(config.trainer)
 
-    with open(exp_dir / "config.yaml", "w", encoding="utf-8") as f:
-        f.write(OmegaConf.to_yaml(config, resolve=True, sort_keys=True))
+    config_path = str(exp_dir / "config.yaml")
+
+    OmegaConf.save(config, config_path, resolve=True)
 
     if isinstance(trainer.logger, WandbLogger):
         trainer.logger.experiment.config.update(OmegaConf.to_object(config))
-        dvc_exp_name = os.environ.get("DVC_EXP_NAME")
-
-        cls_config = {"class_mapping": PlateDataset.get_label_mapping()}
-
-        if dvc_exp_name:
-            cls_config["dvc_exp_name"] = dvc_exp_name
-
+        key = "class_mapping"
+        assert key not in trainer.logger.experiment.config
+        cls_config = {key: PlateDataset.get_label_mapping()}
         trainer.logger.experiment.config.update(cls_config)
 
     trainer.fit(base_model, datamodule=datamodule)
 
 
 if __name__ == "__main__":
+    load_dotenv()
     main()
