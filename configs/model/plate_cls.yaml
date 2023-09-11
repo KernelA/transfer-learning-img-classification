@@ -1,3 +1,3 @@
 _target_: tr_learn.model.cls_model.PlateClassification
-is_full_train: false
-resnet_type: 'resnet18'
+is_full_train: true
+resnet_type: 'resnet101'

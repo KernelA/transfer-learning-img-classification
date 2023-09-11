@@ -7,6 +7,8 @@ import torch
 from lightning.pytorch.loggers import TensorBoardLogger, WandbLogger
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torchmetrics.classification import BinaryAccuracy
+from torchmetrics.functional.classification import \
+    binary_precision_recall_curve
 
 import wandb
 
@@ -24,7 +26,6 @@ class ClsTrainer(L.LightningModule):
                  loss_module,
                  optimizer_config,
                  scheduler_config: Optional[dict],
-                 inv_label_mapping: Dict[int, str],
                  image_mean: Sequence[float],
                  image_std: Sequence[float],
                  ) -> None:
@@ -38,7 +39,6 @@ class ClsTrainer(L.LightningModule):
         self._valid_acc = BinaryAccuracy()
         self._loss_module = loss_module
         self._training_step_outputs = defaultdict(list)
-        self._inv_mapping = inv_label_mapping
         self._max_loss_per_instance = 0
         self._bad_train_instance_with_max_error = None
         self._image_mean = torch.tensor(image_mean).view(len(image_mean), 1, 1)
@@ -59,7 +59,10 @@ class ClsTrainer(L.LightningModule):
 
     def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
         predicted_logits = self._model(batch[0])
-        true_labels = batch[1].view(-1).to(torch.get_default_dtype())
+        true_labels = batch[1].view(-1)
+        self._training_step_outputs["true_labels"].append(true_labels.detach().cpu())
+
+        true_labels = true_labels.to(torch.get_default_dtype())
         loss_per_instance = self._loss_module(predicted_logits, true_labels)
 
         with torch.no_grad():
@@ -76,13 +79,14 @@ class ClsTrainer(L.LightningModule):
         loss = torch.mean(loss_per_instance)
 
         self._train_acc(predicted_logits, true_labels)
-        self.log("Train/loss", loss.item(), on_epoch=True, on_step=False)
-        self.log("Train/accuracy", self._train_acc, on_epoch=True, on_step=False)
+        self.log("Train/loss", loss.item(), on_epoch=True, on_step=False,
+                 prog_bar=True, batch_size=batch[0].shape[0])
+        self.log("Train/accuracy", self._train_acc, on_epoch=True,
+                 on_step=False, prog_bar=True, batch_size=batch[0].shape[0])
 
         with torch.no_grad():
             pred_proba = self._model.pos_prob(predicted_logits)
             self._training_step_outputs["pred_proba"].append(pred_proba.cpu())
-            self._training_step_outputs["true_labels"].append(true_labels.cpu())
 
         return loss
 
@@ -91,16 +95,15 @@ class ClsTrainer(L.LightningModule):
         predicted_proba = torch.cat(self._training_step_outputs["pred_proba"])
 
         if isinstance(self.logger, WandbLogger):
-            labels = [""] * len(self._inv_mapping)
+            precision, recall, thresholds = binary_precision_recall_curve(
+                predicted_proba, ground_truth)
+            thresholds = torch.cat((thresholds, torch.tensor([1.0], dtype=thresholds.dtype)))
 
-            for index, class_label in self._inv_mapping.items():
-                labels[index] = class_label
+            data = torch.cat((precision.view(-1, 1), recall.view(-1, 1),
+                             thresholds.view(-1, 1)), dim=1)
 
-            predicted_proba = torch.cat(
-                ((1 - predicted_proba).view(-1, 1),
-                 predicted_proba.view(-1, 1)), dim=1)
-            self.logger.experiment.log(
-                {"Train/PR_curve": wandb.plot.pr_curve(ground_truth, predicted_proba, labels=labels)})
+            table = wandb.Table(data=data.tolist(), columns=["Precision", "Recall", "Threshold"])
+            self.logger.experiment.log({"Train/PR_table": table})
 
         elif isinstance(self.logger, TensorBoardLogger):
             self.logger.experiment.add_pr_curve(
@@ -120,8 +123,8 @@ class ClsTrainer(L.LightningModule):
         true_labels = batch[1].view(-1).to(torch.get_default_dtype())
         loss = torch.mean(self._loss_module(predicted_logits, true_labels))
         self._valid_acc(predicted_logits, true_labels)
-        self.log("Valid/loss", loss.item(), on_epoch=True)
-        self.log("Valid/accuracy", self._valid_acc, on_epoch=True)
+        self.log("Valid/loss", loss.item(), on_epoch=True, batch_size=batch[0].shape[0])
+        self.log("Valid/accuracy", self._valid_acc, on_epoch=True, batch_size=batch[0].shape[0])
 
     def configure_optimizers(self) -> Any:
         optimizer = hydra.utils.instantiate(self._optimizer_config, self._model.parameters())

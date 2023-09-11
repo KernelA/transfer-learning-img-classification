@@ -33,7 +33,6 @@ def main(config):
                             loss_module,
                             optimizer_config=config.optimizer,
                             scheduler_config=config.get("scheduler"),
-                            inv_label_mapping=PlateDataset.inv_label_mapping(),
                             image_mean=config.transforms.image_norm_mean,
                             image_std=config.transforms.image_norm_std)
 
