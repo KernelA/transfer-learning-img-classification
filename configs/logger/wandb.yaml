@@ -5,3 +5,4 @@ log_model: true
 settings:
   _target_: wandb.Settings
   _disable_stats: false
+  reinit: true
