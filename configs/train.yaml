@@ -9,15 +9,15 @@ defaults:
   - model: plate_cls
   - datamodule: plates_train_valid
   - transforms: resnext
-  - logger: wandb
+  - logger: tensorboard
   - loss: bce
   - _self_
 
 datamodule:
   train_load_info:
-    batch_size: 10
+    batch_size: 8
   valid_load_info:
-    batch_size: 64
+    batch_size: 8
   predict_load_info:
     transform: ${transforms.valid_transform}
 
@@ -30,10 +30,11 @@ trainer:
   accelerator: 'gpu'
   precision: '32'
   fast_dev_run: false
-  max_epochs: 50
-  check_val_every_n_epoch: 1
+  max_epochs: 20
+  check_val_every_n_epoch: 2
   log_every_n_steps: 10
   benchmark: true
+  deterministic: false
   inference_mode: true
   logger:
     - ${logger}

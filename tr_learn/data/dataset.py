@@ -41,9 +41,9 @@ class PlateDataset(data.Dataset):
             self._image_paths.append(os.path.join(root, file_path))
             self._labels.append(class_mapping[class_label])
 
-        if split_type == SplitType.train:
-            for image_path in self._image_paths:
-                self._images.append(io.read_image(image_path, io.ImageReadMode.RGB))
+        # if split_type == SplitType.train:
+        #     for image_path in self._image_paths:
+        #         self._images.append(io.read_image(image_path, io.ImageReadMode.RGB))
 
     def __len__(self):
         return len(self._image_paths)

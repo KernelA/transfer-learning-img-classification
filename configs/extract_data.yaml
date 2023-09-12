@@ -7,4 +7,37 @@ defaults:
   - data: plates
   - _self_
 
+
+augment_transform:
+  _target_: torch.nn.Sequential
+  _args_:
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 0.5
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 0.5
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: 'partial'
+      size: [224]
+      interpolation: 
+        _target_:  tr_learn.data.transforms.to_interpolation_mode
+        mode: 'BILINEAR'
+      scale: 
+        _target_: tr_learn.data.transforms.to_tuple
+        items: [0.5, 1.0]
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items: [0.9, 1.2]
+      antialias: true
+    - _target_: torchvision.transforms.v2.RandomApply
+      _args_:
+        - _target_: torch.nn.ModuleList
+          modules:
+            - _target_: torchvision.transforms.v2.ColorJitter
+              hue: 0.5
+              saturation: 0.25
+              brightness: 0.2
+      p: 0.5
+
+
+num_random_images: 50
 out_dir: ./data/raw/plates

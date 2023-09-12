@@ -63,23 +63,23 @@ class ClsTrainer(L.LightningModule):
         self._training_step_outputs["true_labels"].append(true_labels.detach().cpu())
 
         true_labels = true_labels.to(torch.get_default_dtype())
-        loss_per_instance = self._loss_module(predicted_logits, true_labels)
+        loss = self._loss_module(predicted_logits, true_labels)
 
-        with torch.no_grad():
-            loss_per_instance = loss_per_instance.view(-1)
+        # with torch.no_grad():
+        #     loss_per_instance = loss_per_instance.view(-1)
 
-            inst_index_with_max_loss = loss_per_instance.argmax()
-            max_loss = loss_per_instance[inst_index_with_max_loss].item()
+        #     inst_index_with_max_loss = loss_per_instance.argmax()
+        #     max_loss = loss_per_instance[inst_index_with_max_loss].item()
 
-            if max_loss > self._max_loss_per_instance:
-                self._max_loss_per_instance = max_loss
-                self._bad_train_instance_with_max_error = batch[0][inst_index_with_max_loss].detach(
-                ).cpu()
+        #     if max_loss > self._max_loss_per_instance:
+        #         self._max_loss_per_instance = max_loss
+        #         self._bad_train_instance_with_max_error = batch[0][inst_index_with_max_loss].detach(
+        #         ).cpu()
 
-        loss = torch.mean(loss_per_instance)
+        # loss = torch.mean(loss_per_instance)
 
         self._train_acc(predicted_logits, true_labels)
-        self.log("Train/loss", loss.item(), on_epoch=True, on_step=False,
+        self.log("Train/loss", loss, on_epoch=True, on_step=False,
                  prog_bar=True, batch_size=batch[0].shape[0])
         self.log("Train/accuracy", self._train_acc, on_epoch=True,
                  on_step=False, prog_bar=True, batch_size=batch[0].shape[0])
@@ -121,10 +121,11 @@ class ClsTrainer(L.LightningModule):
     def validation_step(self, batch, batch_idx) -> STEP_OUTPUT | None:
         predicted_logits = self._model(batch[0])
         true_labels = batch[1].view(-1).to(torch.get_default_dtype())
-        loss = torch.mean(self._loss_module(predicted_logits, true_labels))
+        loss = self._loss_module(predicted_logits, true_labels)
         self._valid_acc(predicted_logits, true_labels)
-        self.log("Valid/loss", loss.item(), on_epoch=True, batch_size=batch[0].shape[0])
-        self.log("Valid/accuracy", self._valid_acc, on_epoch=True, batch_size=batch[0].shape[0])
+        self.log("Valid/loss", loss, on_epoch=True, batch_size=batch[0].shape[0], prog_bar=True)
+        self.log("Valid/accuracy", self._valid_acc, on_epoch=True,
+                 batch_size=batch[0].shape[0], prog_bar=True)
 
     def configure_optimizers(self) -> Any:
         optimizer = hydra.utils.instantiate(self._optimizer_config, self._model.parameters())
