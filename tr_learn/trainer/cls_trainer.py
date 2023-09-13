@@ -60,7 +60,6 @@ class ClsTrainer(L.LightningModule):
     def training_step(self, batch, batch_idx) -> STEP_OUTPUT:
         predicted_logits = self._model(batch[0])
         true_labels = batch[1].view(-1)
-        self._training_step_outputs["true_labels"].append(true_labels.detach().cpu())
 
         true_labels = true_labels.to(torch.get_default_dtype())
         loss_per_instance = self._loss_module(predicted_logits, true_labels)
@@ -84,13 +83,9 @@ class ClsTrainer(L.LightningModule):
         self.log("Train/accuracy", self._train_acc, on_epoch=True,
                  on_step=False, prog_bar=True, batch_size=batch[0].shape[0])
 
-        with torch.no_grad():
-            pred_proba = self._model.pos_prob(predicted_logits)
-            self._training_step_outputs["pred_proba"].append(pred_proba.cpu())
-
         return loss
 
-    def on_train_epoch_end(self, ) -> None:
+    def on_validation_epoch_end(self) -> None:
         ground_truth = torch.cat(self._training_step_outputs["true_labels"])
         predicted_proba = torch.cat(self._training_step_outputs["pred_proba"])
 
@@ -99,15 +94,17 @@ class ClsTrainer(L.LightningModule):
                 predicted_proba, ground_truth)
             thresholds = torch.cat((thresholds, torch.tensor([1.0], dtype=thresholds.dtype)))
 
-            data = torch.cat((precision.view(-1, 1), recall.view(-1, 1),
-                             thresholds.view(-1, 1)), dim=1)
+            data = torch.cat((
+                precision.view(-1, 1),
+                recall.view(-1, 1),
+                thresholds.view(-1, 1)), dim=1)
 
             table = wandb.Table(data=data.tolist(), columns=["Precision", "Recall", "Threshold"])
-            self.logger.experiment.log({"Train/PR_table": table})
+            self.logger.experiment.log({"Valid/PR_table": table})
 
         elif isinstance(self.logger, TensorBoardLogger):
             self.logger.experiment.add_pr_curve(
-                "Train/PR_curve", ground_truth, predicted_proba, global_step=self.current_epoch)
+                "Valid/PR_curve", ground_truth, predicted_proba, global_step=self.current_epoch)
 
         if self._bad_train_instance_with_max_error is not None:
             self._log_image(self._bad_train_instance_with_max_error)
@@ -120,6 +117,12 @@ class ClsTrainer(L.LightningModule):
 
     def validation_step(self, batch, batch_idx) -> STEP_OUTPUT | None:
         predicted_logits = self._model(batch[0])
+
+        true_labels = batch[1].view(-1)
+        self._training_step_outputs["true_labels"].append(true_labels.cpu())
+        pred_proba = self._model.pos_prob(predicted_logits)
+        self._training_step_outputs["pred_proba"].append(pred_proba.cpu())
+
         true_labels = batch[1].view(-1).to(torch.get_default_dtype())
         loss = torch.mean(self._loss_module(predicted_logits, true_labels))
         self._valid_acc(predicted_logits, true_labels)
