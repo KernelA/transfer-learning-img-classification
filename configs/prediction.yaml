@@ -7,4 +7,4 @@ hydra:
 config_url: ./exp/cls_training/config.yaml # if wandb wandb://entity/project_name/run_name
 # config_url: wandb://${oc.env:WANDB_ENTITY}/plates-cls/6tpodj6y
 subm_dir: ./data/subm
-threshold: 0.5
+threshold: 0.9

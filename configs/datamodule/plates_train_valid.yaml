@@ -20,5 +20,5 @@ predict_load_info:
   batch_size: 8
   transform: ???
   num_workers: 4
-train_size: 0.8
+train_size: 0.7
 split_random_seed: 834_823
