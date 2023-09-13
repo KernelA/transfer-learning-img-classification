@@ -63,20 +63,20 @@ class ClsTrainer(L.LightningModule):
         self._training_step_outputs["true_labels"].append(true_labels.detach().cpu())
 
         true_labels = true_labels.to(torch.get_default_dtype())
-        loss = self._loss_module(predicted_logits, true_labels)
+        loss_per_instance = self._loss_module(predicted_logits, true_labels)
 
-        # with torch.no_grad():
-        #     loss_per_instance = loss_per_instance.view(-1)
+        loss = torch.mean(loss_per_instance)
 
-        #     inst_index_with_max_loss = loss_per_instance.argmax()
-        #     max_loss = loss_per_instance[inst_index_with_max_loss].item()
+        with torch.no_grad():
+            loss_per_instance = loss_per_instance.view(-1)
 
-        #     if max_loss > self._max_loss_per_instance:
-        #         self._max_loss_per_instance = max_loss
-        #         self._bad_train_instance_with_max_error = batch[0][inst_index_with_max_loss].detach(
-        #         ).cpu()
+            inst_index_with_max_loss = loss_per_instance.argmax()
+            max_loss = loss_per_instance[inst_index_with_max_loss].item()
 
-        # loss = torch.mean(loss_per_instance)
+            if max_loss > self._max_loss_per_instance:
+                self._max_loss_per_instance = max_loss
+                self._bad_train_instance_with_max_error = batch[0][inst_index_with_max_loss].detach(
+                ).cpu()
 
         self._train_acc(predicted_logits, true_labels)
         self.log("Train/loss", loss, on_epoch=True, on_step=False,
@@ -121,7 +121,7 @@ class ClsTrainer(L.LightningModule):
     def validation_step(self, batch, batch_idx) -> STEP_OUTPUT | None:
         predicted_logits = self._model(batch[0])
         true_labels = batch[1].view(-1).to(torch.get_default_dtype())
-        loss = self._loss_module(predicted_logits, true_labels)
+        loss = torch.mean(self._loss_module(predicted_logits, true_labels))
         self._valid_acc(predicted_logits, true_labels)
         self.log("Valid/loss", loss, on_epoch=True, batch_size=batch[0].shape[0], prog_bar=True)
         self.log("Valid/accuracy", self._valid_acc, on_epoch=True,
