@@ -2,24 +2,31 @@ optimizer:
   _target_: torch.optim.AdamW
   lr: 0.001
   amsgrad: true
+  weight_decay: 0.001
+scheduler:
+  _target_: torch.optim.lr_scheduler.StepLR
+  step_size: 10
+  gamma: 0.5
 model:
   _target_: tr_learn.model.cls_model.PlateClassification
   is_full_train: false
-  resnet_type: resnet101
+  model_type: resnet18
 datamodule:
   _target_: tr_learn.data.datamodule.PlateDataModuleTrainValid
   train_load_info:
     _target_: tr_learn.data.datamodule.LoadInfo
     is_jit_transform: true
     root: ./data/raw/plates
-    batch_size: 10
+    batch_size: 8
     transform: ???
+    num_workers: 4
   valid_load_info:
     _target_: tr_learn.data.datamodule.LoadInfo
     root: ./data/raw/plates
     is_jit_transform: true
-    batch_size: 64
+    batch_size: 8
     transform: ???
+    num_workers: 4
   predict_load_info:
     _target_: tr_learn.data.datamodule.LoadInfo
     root: ./data/raw/plates
@@ -47,7 +54,7 @@ datamodule:
         - 0.224
         - 0.225
     num_workers: 4
-  train_size: 0.8
+  train_size: 0.7
   split_random_seed: 834823
 transforms:
   image_norm_mean:
@@ -66,8 +73,6 @@ transforms:
       antialias: true
       size:
       - 224
-    - _target_: torchvision.transforms.RandomHorizontalFlip
-      p: 0.5
     - _target_: torchvision.transforms.CenterCrop
       size: 224
     - _target_: tr_learn.data.transforms.convert_dtype
@@ -103,17 +108,13 @@ transforms:
       - 0.224
       - 0.225
 logger:
-  _target_: lightning.pytorch.loggers.WandbLogger
-  project: plates-cls
-  name: null
-  log_model: true
-  settings:
-    _target_: wandb.Settings
-    _disable_stats: false
+  _target_: lightning.pytorch.loggers.TensorBoardLogger
+  save_dir: ./exp/cls_training/logs
 loss:
   _target_: torch.nn.BCEWithLogitsLoss
   reduction: none
 exp_dir: ./exp/cls_training
+seed: 172197
 trainer:
   _target_: lightning.Trainer
   accelerator: gpu
@@ -121,26 +122,27 @@ trainer:
   fast_dev_run: false
   max_epochs: 10
   check_val_every_n_epoch: 1
-  log_every_n_steps: 1
+  log_every_n_steps: 10
   benchmark: true
+  deterministic: false
   inference_mode: true
   logger:
-  - _target_: lightning.pytorch.loggers.WandbLogger
-    project: plates-cls
-    name: null
-    log_model: true
-    settings:
-      _target_: wandb.Settings
-      _disable_stats: false
+  - _target_: lightning.pytorch.loggers.TensorBoardLogger
+    save_dir: ./exp/cls_training/logs
   callbacks:
+  - _target_: lightning.pytorch.callbacks.EarlyStopping
+    monitor: Valid/accuracy
+    min_delta: 0.001
+    patience: 2
+    mode: max
   - _target_: lightning.pytorch.callbacks.LearningRateMonitor
     logging_interval: epoch
   - _target_: lightning.pytorch.callbacks.ModelCheckpoint
     save_top_k: 2
     mode: max
-    monitor: Train/accuracy
+    monitor: Valid/accuracy
     dirpath: ./exp/cls_training/checkpoints
-    filename: '{epoch}-{Train/accuracy:.2f}'
+    filename: '{epoch}-{Valid/accuracy:.3f}'
     save_last: false
     save_weights_only: true
     every_n_epochs: 1

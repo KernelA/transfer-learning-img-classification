@@ -43,9 +43,7 @@ class ResNetAdapter(BaseAdapter):
             torch.nn.BatchNorm1d(model.fc.in_features),
             torch.nn.Linear(model.fc.in_features, model.fc.in_features // 2, bias=False),
             torch.nn.LeakyReLU(),
-            torch.nn.Linear(model.fc.in_features // 2, model.fc.in_features // 4, bias=False),
-            torch.nn.LeakyReLU(),
-            torch.nn.Linear(model.fc.in_features // 4, 1, bias=False)
+            torch.nn.Linear(model.fc.in_features // 2, 1, bias=False)
         )
         super().__init__(model, model.fc, is_full_train)
 
@@ -54,7 +52,6 @@ class EfficientNetAdapter(BaseAdapter):
     def __init__(self, model_factory, weight, is_full_train: bool):
         model = model_factory(weights=weight.DEFAULT)
         model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 1, bias=False)
-
         super().__init__(model, model.classifier, is_full_train)
 
 

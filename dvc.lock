@@ -16,54 +16,54 @@ stages:
       size: 40
     - path: ./configs/extract_data.yaml
       hash: md5
-      md5: 50088e2cf61a75c84a6795bc6cc5f9ff
-      size: 122
+      md5: 96365832bce80fc16c79d6e55fc43ab3
+      size: 1130
     - path: ./data/raw/in/platesv2.zip
       hash: md5
       md5: b93a300cde18590c34da5f67fadffbb9
       size: 49320836
     - path: ./extract_data.py
       hash: md5
-      md5: c696b490d3cd6ee32681c1b7793b64a0
-      size: 1369
+      md5: f9c1892b7fce5a1ecce8f1fd49be2d7a
+      size: 2734
     outs:
     - path: ./data/raw/plates
       hash: md5
-      md5: e1d6a5eabc2c4a79c5354651bd095cad.dir
-      size: 49307920
-      nfiles: 784
+      md5: 785b8ff70dfae8b8f2af339a8ef5f1d2.dir
+      size: 137017499
+      nfiles: 4784
   train:
     cmd: python ./train.py
     deps:
     - path: ./data/raw/plates
       hash: md5
-      md5: e1d6a5eabc2c4a79c5354651bd095cad.dir
-      size: 49307920
-      nfiles: 784
+      md5: 785b8ff70dfae8b8f2af339a8ef5f1d2.dir
+      size: 137017499
+      nfiles: 4784
     - path: ./train.py
       hash: md5
-      md5: 5a15df27fbebb28844d9c642212d9b08
-      size: 2488
+      md5: eb732870e93e1fee8faecaaaeaa5758b
+      size: 2445
     - path: params.yaml
       hash: md5
-      md5: 7209c35814807608acdb51ce649cb23f
-      size: 3651
+      md5: 9908c89996b01de91dfc9d1ecaab5dc4
+      size: 3726
     outs:
     - path: ./exp/cls_training
       hash: md5
-      md5: 103112c248b1f249da4e992594ef9ca8.dir
-      size: 341302500
-      nfiles: 3
+      md5: 3e54455ce93682696b9ff0579e7a6a86.dir
+      size: 90931870
+      nfiles: 5
   prediction:
     cmd: python ./prediction.py
     deps:
     - path: ./configs/prediction.yaml
       hash: md5
-      md5: 1b0245864849117cd2993a29ee8555e5
-      size: 184
+      md5: 2f153980896679266e5fb9325fd057e0
+      size: 250
     outs:
     - path: ./data/subm
       hash: md5
-      md5: f98ea51db6bd5073e27b7f981909f8ff.dir
-      size: 20784
+      md5: 5b0059835167ff2f97a93d0339a98170.dir
+      size: 18860
       nfiles: 2
