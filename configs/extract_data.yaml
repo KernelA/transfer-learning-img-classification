@@ -39,5 +39,5 @@ augment_transform:
       p: 0.5
 
 
-num_random_images: 50
+num_random_images: 100
 out_dir: ./data/raw/plates
