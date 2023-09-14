@@ -3,7 +3,7 @@ image_norm_std: [0.229, 0.224, 0.225] #${.train_transform._args_[5].std}
 
 normalize_transform:
   - _target_: tr_learn.data.transforms.convert_dtype
-  - _target_: torchvision.transforms.Normalize
+  - _target_: torchvision.transforms.v2.Normalize
     _convert_: "partial"
     mean: ${...image_norm_mean}
     std: ${...image_norm_std}
@@ -87,7 +87,7 @@ test_transform:
           _convert_: "partial"
           antialias: true
           size: [224]
-        - _target_: torchvision.transforms.CenterCrop
+        - _target_: torchvision.transforms.v2.CenterCrop
           size: 224
         - ${....normalize_transform[0]}
         - ${....normalize_transform[1]}
