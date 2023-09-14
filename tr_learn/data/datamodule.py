@@ -106,22 +106,25 @@ class PlateDataModuleTrainValid(PlateDataModuleTrain):
         return data.Subset(self._train_dataset, train_indices), data.Subset(self._train_dataset, valid_indices)
 
     def setup(self, stage: str) -> None:
-        if stage == "fit" and self._train_dataset is None:
-            self._train_dataset = data.ConcatDataset(
-                PlateDataset(
-                    self._train_load_info.root,
-                    SplitType.train,
-                    transform) for transform in self._train_load_info.transforms)
+        logging.info(f"{stage}")
+        if stage in ("fit", "validate"):
+            if self._train_dataset is None:
+                self._train_dataset = data.ConcatDataset(
+                    PlateDataset(
+                        self._train_load_info.root,
+                        SplitType.train,
+                        transform) for transform in self._train_load_info.transforms)
 
-            logging.info("Prepare train dataset with %d images", len(self._train_dataset))
-        elif stage == "validate" and self._valid_dataset is None:
-            self._valid_dataset = data.ConcatDataset(
-                PlateDataset(
-                    self._valid_load_info.root,
-                    SplitType.valid,
-                    transform) for transform in self._valid_load_info.transforms
-            )
-            logging.info("Prepare valid dataset with %d images", len(self._valid_dataset))
+                logging.info("Prepare train dataset with %d images", len(self._train_dataset))
+
+            if self._valid_dataset is None:
+                self._valid_dataset = data.ConcatDataset(
+                    PlateDataset(
+                        self._valid_load_info.root,
+                        SplitType.valid,
+                        transform) for transform in self._valid_load_info.transforms
+                )
+                logging.info("Prepare valid dataset with %d images", len(self._valid_dataset))
         else:
             super().setup(stage)
 
