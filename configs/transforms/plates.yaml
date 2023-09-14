@@ -26,8 +26,6 @@ resize_crop_transform:
 augment_transforms:
   - _target_: torch.nn.Sequential
     _args_:
-      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-        p: 1.0
       - ${....resize_crop_transform}
       - ${....normalize_transform[0]}
       - ${....normalize_transform[1]}
@@ -65,15 +63,24 @@ augment_transforms:
         brightness: 0.5
       - ${....normalize_transform[0]}
       - ${....normalize_transform[1]}
+  - _target_: torch.nn.Sequential
+    _args_:
+      - _target_: transforms.v2.RandomRotation
+        degrees: 45
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: "BILINEAR"
+      - ${....resize_crop_transform}
+      - ${....normalize_transform[0]}
+      - ${....normalize_transform[1]}
 
 train_transform: ${.augment_transforms}
-
-valid_transform: ${.augment_transforms}
+valid_transform: ${.test_transform}
 
 test_transform:
   - _target_: torch.nn.Sequential
     _args_:
-        - _target_: torchvision.transforms.Resize
+        - _target_: torchvision.transforms.v2.Resize
           interpolation:
             _target_: tr_learn.data.transforms.to_interpolation_mode
             mode: "BILINEAR"

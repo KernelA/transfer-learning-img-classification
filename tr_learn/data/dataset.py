@@ -1,7 +1,7 @@
 import enum
 import os
 import pathlib
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, Optional, Tuple
 
 from fsspec.implementations.local import LocalFileSystem
 from torch.utils import data
@@ -73,4 +73,4 @@ class PlateDataset(data.Dataset):
 
     @classmethod
     def get_label_mapping(cls) -> Dict[str, int]:
-        return {"cleaned": 1, "dirty": 0, UNKNOWN_LABEL: -1}
+        return {"cleaned": 0, "dirty": 1, UNKNOWN_LABEL: -1}

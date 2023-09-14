@@ -4,13 +4,12 @@ from typing import Any, Dict, Optional, Sequence
 import hydra
 import lightning as L
 import torch
+import wandb
 from lightning.pytorch.loggers import TensorBoardLogger, WandbLogger
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torchmetrics.classification import BinaryAccuracy
 from torchmetrics.functional.classification import \
     binary_precision_recall_curve
-
-import wandb
 
 from ..model import PlateClassification
 
@@ -123,9 +122,11 @@ class ClsTrainer(L.LightningModule):
         pred_proba = self._model.pos_prob(predicted_logits)
         self._training_step_outputs["pred_proba"].append(pred_proba.cpu())
 
-        true_labels = batch[1].view(-1).to(torch.get_default_dtype())
-        loss = torch.mean(self._loss_module(predicted_logits, true_labels))
         self._valid_acc(predicted_logits, true_labels)
+
+        true_labels = true_labels.to(torch.get_default_dtype())
+
+        loss = torch.mean(self._loss_module(predicted_logits, true_labels))
         self.log("Valid/loss", loss, on_epoch=True, batch_size=batch[0].shape[0], prog_bar=True)
         self.log("Valid/accuracy", self._valid_acc, on_epoch=True,
                  batch_size=batch[0].shape[0], prog_bar=True)

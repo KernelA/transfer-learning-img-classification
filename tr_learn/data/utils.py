@@ -53,7 +53,7 @@ def extract_plate(image: np.ndarray):
     circles = find_circles(image)
     circles = filter_circles(circles, image.shape[1], image.shape[0])
     mask = segment_plate(image, circles)
-    image = image * mask[..., np.newaxis]
+    # image = image * mask[..., np.newaxis]
     xy_wh = cv2.boundingRect(mask)
     return image[xy_wh[1]: xy_wh[1] + xy_wh[3], xy_wh[0]: xy_wh[0] + xy_wh[2]]
 
@@ -72,7 +72,7 @@ def segment_plate(image: np.ndarray, circle: np.ndarray):
                   cv2.GC_PR_FGD,
                   cv2.FILLED)
 
-    cv2.circle(mask, circle[:2], round(0.9 * circle[2]), cv2.GC_FGD, cv2.FILLED)
+    cv2.circle(mask, circle[:2], circle[2], cv2.GC_FGD, cv2.FILLED)
 
     bgdModel = np.zeros((1, 65), np.float64)
     fgdModel = np.zeros((1, 65), np.float64)
@@ -80,9 +80,7 @@ def segment_plate(image: np.ndarray, circle: np.ndarray):
     cv2.grabCut(image, mask, None, bgdModel, fgdModel, 5, cv2.GC_INIT_WITH_MASK)
 
     mask = np.where((mask == cv2.GC_BGD) | (mask == cv2.GC_PR_BGD), 0, 1).astype(np.uint8)
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-
-    return cv2.erode(mask, kernel, iterations=5)
+    return mask
 
 
 def get_split_and_class(path: pathlib.Path):
