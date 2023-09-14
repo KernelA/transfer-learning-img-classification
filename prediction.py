@@ -1,20 +1,18 @@
 import csv
-import os
 import pathlib
-from typing import List, NamedTuple
-from urllib.parse import urlparse
 
 import hydra
 import torch
+import torchvision
 from dotenv import load_dotenv
-from fsspec.implementations.local import LocalFileSystem
-from omegaconf import OmegaConf
 from tqdm.auto import tqdm
 
 from tr_learn.data.datamodule import PlateDataModuleTrain
 from tr_learn.data.dataset import PlateDataset
 from tr_learn.trainer.cls_trainer import PlateClassification
 from tr_learn.utils import load_infer_info, remap_lighting_keys
+
+torchvision.disable_beta_transforms_warning()
 
 
 @hydra.main(config_path="configs", config_name="prediction", version_base="1.3")

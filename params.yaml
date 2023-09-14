@@ -18,24 +18,311 @@ datamodule:
     is_jit_transform: true
     root: ./data/raw/plates
     batch_size: 8
-    transform: ???
-    num_workers: 4
+    transforms:
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+        p: 1.0
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomVerticalFlip
+        p: 1.0
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: torchvision.transforms.v2.ColorJitter
+        hue: 0.5
+        saturation: 0.25
+        contrast: 0.5
+        brightness: 0.5
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+        p: 0.6
+      - _target_: torchvision.transforms.v2.RandomVerticalFlip
+        p: 0.6
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: torchvision.transforms.v2.ColorJitter
+        hue: 0.5
+        saturation: 0.25
+        contrast: 0.5
+        brightness: 0.5
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    num_workers: 0
   valid_load_info:
     _target_: tr_learn.data.datamodule.LoadInfo
     root: ./data/raw/plates
     is_jit_transform: true
     batch_size: 8
-    transform: ???
-    num_workers: 4
+    transforms:
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+        p: 1.0
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomVerticalFlip
+        p: 1.0
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: torchvision.transforms.v2.ColorJitter
+        hue: 0.5
+        saturation: 0.25
+        contrast: 0.5
+        brightness: 0.5
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+        p: 0.6
+      - _target_: torchvision.transforms.v2.RandomVerticalFlip
+        p: 0.6
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: torchvision.transforms.v2.ColorJitter
+        hue: 0.5
+        saturation: 0.25
+        contrast: 0.5
+        brightness: 0.5
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    num_workers: 0
   predict_load_info:
     _target_: tr_learn.data.datamodule.LoadInfo
     root: ./data/raw/plates
     is_jit_transform: true
     batch_size: 8
-    transform:
-      _target_: torch.nn.Sequential
+    transforms:
+    - _target_: torch.nn.Sequential
       _args_:
       - _target_: torchvision.transforms.Resize
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
         _convert_: partial
         antialias: true
         size:
@@ -54,8 +341,6 @@ datamodule:
         - 0.224
         - 0.225
     num_workers: 4
-  train_size: 0.7
-  split_random_seed: 834823
 transforms:
   image_norm_mean:
   - 0.485
@@ -65,16 +350,312 @@ transforms:
   - 0.229
   - 0.224
   - 0.225
-  train_transform:
-    _target_: torch.nn.Sequential
+  normalize_transform:
+  - _target_: tr_learn.data.transforms.convert_dtype
+  - _target_: torchvision.transforms.Normalize
+    _convert_: partial
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+  resize_crop_transform:
+    _target_: torchvision.transforms.v2.RandomResizedCrop
+    _convert_: partial
+    size:
+    - 224
+    interpolation:
+      _target_: tr_learn.data.transforms.to_interpolation_mode
+      mode: BILINEAR
+    scale:
+      _target_: tr_learn.data.transforms.to_tuple
+      items:
+      - 0.5
+      - 1.0
+    ratio:
+      _target_: tr_learn.data.transforms.to_tuple
+      items:
+      - 0.9
+      - 1.2
+    antialias: true
+  augment_transforms:
+  - _target_: torch.nn.Sequential
     _args_:
-    - _target_: torchvision.transforms.Resize
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 1.0
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
       _convert_: partial
-      antialias: true
       size:
       - 224
-    - _target_: torchvision.transforms.CenterCrop
-      size: 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 1.0
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: torchvision.transforms.v2.ColorJitter
+      hue: 0.5
+      saturation: 0.25
+      contrast: 0.5
+      brightness: 0.5
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 0.6
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 0.6
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: torchvision.transforms.v2.ColorJitter
+      hue: 0.5
+      saturation: 0.25
+      contrast: 0.5
+      brightness: 0.5
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  train_transform:
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 1.0
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 1.0
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: torchvision.transforms.v2.ColorJitter
+      hue: 0.5
+      saturation: 0.25
+      contrast: 0.5
+      brightness: 0.5
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 0.6
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 0.6
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: torchvision.transforms.v2.ColorJitter
+      hue: 0.5
+      saturation: 0.25
+      contrast: 0.5
+      brightness: 0.5
     - _target_: tr_learn.data.transforms.convert_dtype
     - _target_: torchvision.transforms.Normalize
       _convert_: partial
@@ -87,9 +668,155 @@ transforms:
       - 0.224
       - 0.225
   valid_transform:
-    _target_: torch.nn.Sequential
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 1.0
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 1.0
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: torchvision.transforms.v2.ColorJitter
+      hue: 0.5
+      saturation: 0.25
+      contrast: 0.5
+      brightness: 0.5
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
+      p: 0.6
+    - _target_: torchvision.transforms.v2.RandomVerticalFlip
+      p: 0.6
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: torchvision.transforms.v2.ColorJitter
+      hue: 0.5
+      saturation: 0.25
+      contrast: 0.5
+      brightness: 0.5
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  test_transform:
+  - _target_: torch.nn.Sequential
     _args_:
     - _target_: torchvision.transforms.Resize
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
       _convert_: partial
       antialias: true
       size:
@@ -120,7 +847,7 @@ trainer:
   accelerator: gpu
   precision: '32'
   fast_dev_run: false
-  max_epochs: 10
+  max_epochs: 20
   check_val_every_n_epoch: 1
   log_every_n_steps: 10
   benchmark: true
@@ -130,11 +857,6 @@ trainer:
   - _target_: lightning.pytorch.loggers.TensorBoardLogger
     save_dir: ./exp/cls_training/logs
   callbacks:
-  - _target_: lightning.pytorch.callbacks.EarlyStopping
-    monitor: Valid/accuracy
-    min_delta: 0.001
-    patience: 2
-    mode: max
   - _target_: lightning.pytorch.callbacks.LearningRateMonitor
     logging_interval: epoch
   - _target_: lightning.pytorch.callbacks.ModelCheckpoint
@@ -143,6 +865,6 @@ trainer:
     monitor: Valid/accuracy
     dirpath: ./exp/cls_training/checkpoints
     filename: '{epoch}-{Valid/accuracy:.3f}'
-    save_last: false
+    save_last: true
     save_weights_only: true
     every_n_epochs: 1

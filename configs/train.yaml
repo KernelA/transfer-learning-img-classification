@@ -32,7 +32,7 @@ trainer:
   accelerator: 'gpu'
   precision: '32'
   fast_dev_run: false
-  max_epochs: 10
+  max_epochs: 20
   check_val_every_n_epoch: 1
   log_every_n_steps: 10
   benchmark: true
@@ -41,11 +41,11 @@ trainer:
   logger:
     - ${logger}
   callbacks:
-    - _target_: lightning.pytorch.callbacks.EarlyStopping
-      monitor: 'Valid/accuracy' 
-      min_delta: 1.0e-3
-      patience: 2
-      mode: 'max'
+    # - _target_: lightning.pytorch.callbacks.EarlyStopping
+    #   monitor: 'Valid/accuracy' 
+    #   min_delta: 1.0e-3
+    #   patience: 2
+    #   mode: 'max'
     - _target_: lightning.pytorch.callbacks.LearningRateMonitor
       logging_interval: 'epoch'
     - _target_: lightning.pytorch.callbacks.ModelCheckpoint
@@ -54,7 +54,7 @@ trainer:
       monitor: 'Valid/accuracy'
       dirpath: ${exp_dir}/checkpoints
       filename: '{epoch}-{Valid/accuracy:.3f}'
-      save_last: false
+      save_last: true
       save_weights_only: true
       every_n_epochs: ${...check_val_every_n_epoch}
 
