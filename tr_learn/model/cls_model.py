@@ -39,13 +39,13 @@ class BaseAdapter(torch.nn.Module):
 class ResNetAdapter(BaseAdapter):
     def __init__(self, model_factory, weight, is_full_train: bool):
         model = model_factory(weights=weight.DEFAULT)
+
         model.fc = torch.nn.Sequential(
-            torch.nn.BatchNorm1d(model.fc.in_features),
             torch.nn.Linear(model.fc.in_features, model.fc.in_features // 2, bias=False),
             torch.nn.LeakyReLU(),
             torch.nn.Linear(model.fc.in_features // 2, 1, bias=False)
         )
-        super().__init__(model, model.fc, is_full_train)
+        super().__init__(model, torch.nn.ModuleList([model.layer4, model.fc]), is_full_train)
 
 
 class EfficientNetAdapter(BaseAdapter):

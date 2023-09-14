@@ -60,8 +60,10 @@ class ClsTrainer(L.LightningModule):
         predicted_logits = self._model(batch[0])
         true_labels = batch[1].view(-1)
 
-        true_labels = true_labels.to(torch.get_default_dtype())
-        loss_per_instance = self._loss_module(predicted_logits, true_labels)
+        self._train_acc(predicted_logits, true_labels)
+
+        loss_per_instance = self._loss_module(
+            predicted_logits, true_labels.to(predicted_logits.dtype))
 
         loss = torch.mean(loss_per_instance)
 
@@ -76,7 +78,6 @@ class ClsTrainer(L.LightningModule):
                 self._bad_train_instance_with_max_error = batch[0][inst_index_with_max_loss].detach(
                 ).cpu()
 
-        self._train_acc(predicted_logits, true_labels)
         self.log("Train/loss", loss, on_epoch=True, on_step=False,
                  prog_bar=True, batch_size=batch[0].shape[0])
         self.log("Train/accuracy", self._train_acc, on_epoch=True,
@@ -124,9 +125,9 @@ class ClsTrainer(L.LightningModule):
 
         self._valid_acc(predicted_logits, true_labels)
 
-        true_labels = true_labels.to(torch.get_default_dtype())
+        loss = torch.mean(self._loss_module(predicted_logits,
+                          true_labels.to(predicted_logits.dtype)))
 
-        loss = torch.mean(self._loss_module(predicted_logits, true_labels))
         self.log("Valid/loss", loss, on_epoch=True, batch_size=batch[0].shape[0], prog_bar=True)
         self.log("Valid/accuracy", self._valid_acc, on_epoch=True,
                  batch_size=batch[0].shape[0], prog_bar=True)
