@@ -1,7 +1,7 @@
 import enum
 import os
 import pathlib
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from fsspec.implementations.local import LocalFileSystem
 from torch.utils import data
@@ -13,6 +13,7 @@ from .utils import UNKNOWN_LABEL, get_split_and_class
 class SplitType(enum.Enum):
     test = enum.auto()
     train = enum.auto()
+    valid = enum.auto()
 
 
 def load_image(path_to_image: str):
@@ -23,7 +24,7 @@ class PlateDataset(data.Dataset):
     def __init__(self,
                  root: str,
                  split_type: SplitType,
-                 transform: Optional[Callable[..., Any]] = None):
+                 transform: Optional[Callable[[Any], Any]] = None):
         super().__init__()
         self._transform = transform
         fs = LocalFileSystem()
@@ -41,12 +42,15 @@ class PlateDataset(data.Dataset):
             self._image_paths.append(os.path.join(root, file_path))
             self._labels.append(class_mapping[class_label])
 
-        # if split_type == SplitType.train:
-        #     for image_path in self._image_paths:
-        #         self._images.append(io.read_image(image_path, io.ImageReadMode.RGB))
+        if split_type == SplitType.train:
+            for image_path in self._image_paths:
+                self._images.append(io.read_image(image_path, io.ImageReadMode.RGB))
 
     def __len__(self):
         return len(self._image_paths)
+
+    def replace_transform(self, new_transform: Callable[[Any], Any]):
+        self._transform = new_transform
 
     @property
     def labels(self):

@@ -1,5 +1,6 @@
 import dataclasses
-from typing import Callable
+import logging
+from typing import Callable, List
 
 import lightning as L
 import numpy as np
@@ -17,12 +18,12 @@ class LoadInfo:
     root: str
     batch_size: int
     is_jit_transform: bool
-    transform: Callable[[torch.Tensor], torch.Tensor]
+    transforms: List[Callable[[torch.Tensor], torch.Tensor]]
     num_workers: int = 0
 
     def __post_init__(self):
         if self.is_jit_transform:
-            self.transform = torch.jit.script(self.transform)
+            self.transforms = list(map(torch.jit.script, self.transforms))
 
 
 class PlateDataModuleTrain(L.LightningDataModule):
@@ -30,6 +31,7 @@ class PlateDataModuleTrain(L.LightningDataModule):
                  train_load_info: LoadInfo,
                  predict_load_info: LoadInfo,
                  ) -> None:
+        assert len(predict_load_info.transforms) == 1, "Only an one transform allowed for test dataset"
         super().__init__()
         self._predict_load_info = predict_load_info
         self._train_load_info = train_load_info
@@ -38,16 +40,19 @@ class PlateDataModuleTrain(L.LightningDataModule):
 
     def setup(self, stage: str) -> None:
         if stage == "fit" and self._train_dataset is None:
-            self._train_dataset = PlateDataset(
-                self._train_load_info.root,
-                SplitType.train,
-                self._train_load_info.transform)
+            self._train_dataset = data.ConcatDataset(
+                PlateDataset(
+                    self._train_load_info.root,
+                    SplitType.train,
+                    transform) for transform in self._train_load_info.transforms)
+            logging.info("Prepare train dataset with %d images", len(self._train_dataset))
         elif stage == "predict" and self._predict_dataset is None:
             self._predict_dataset = PlateDataset(
                 self._predict_load_info.root,
                 split_type=SplitType.test,
-                transform=self._predict_load_info.transform
+                transform=self._predict_load_info.transforms[0]
             )
+            logging.info("Prepare test dataset with %d images", len(self._predict_dataset))
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
         assert self._train_dataset is not None
@@ -75,15 +80,10 @@ class PlateDataModuleTrainValid(PlateDataModuleTrain):
                  train_load_info: LoadInfo,
                  predict_load_info: LoadInfo,
                  valid_load_info: LoadInfo,
-                 train_size: float,
-                 split_random_seed: int,
                  ) -> None:
-        assert 0 < train_size <= 1
         super().__init__(train_load_info, predict_load_info)
         self._train_load_info = train_load_info
         self._valid_load_info = valid_load_info
-        self._train_size = train_size
-        self._split_random_seed = split_random_seed
         self._train_dataset = None
         self._valid_dataset = None
         self._predict_dataset = None
@@ -93,18 +93,35 @@ class PlateDataModuleTrainValid(PlateDataModuleTrain):
 
         indices = np.arange(len(self._train_dataset))
 
+        labels = []
+
+        for dataset in self._train_dataset.datasets:
+            labels.extend(dataset.labels)
+
         train_indices, valid_indices = train_test_split(
             indices, train_size=self._train_size,
             random_state=self._split_random_seed,
-            stratify=self._train_dataset.labels)
+            stratify=labels)
 
         return data.Subset(self._train_dataset, train_indices), data.Subset(self._train_dataset, valid_indices)
 
     def setup(self, stage: str) -> None:
-        if stage in ("fit", "validate"):
-            super().setup("fit")
-            if self._train_dataset is None or self._valid_dataset is None:
-                self._train_dataset, self._valid_dataset = self._split_train_on_train_valid()
+        if stage == "fit" and self._train_dataset is None:
+            self._train_dataset = data.ConcatDataset(
+                PlateDataset(
+                    self._train_load_info.root,
+                    SplitType.train,
+                    transform) for transform in self._train_load_info.transforms)
+
+            logging.info("Prepare train dataset with %d images", len(self._train_dataset))
+        elif stage == "validate" and self._valid_dataset is None:
+            self._valid_dataset = data.ConcatDataset(
+                PlateDataset(
+                    self._valid_load_info.root,
+                    SplitType.valid,
+                    transform) for transform in self._valid_load_info.transforms
+            )
+            logging.info("Prepare valid dataset with %d images", len(self._valid_dataset))
         else:
             super().setup(stage)
 

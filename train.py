@@ -3,29 +3,25 @@ import pathlib
 
 import hydra
 import lightning as L
+import torchvision
 from dotenv import load_dotenv
 from lightning.pytorch.loggers.wandb import WandbLogger
 from omegaconf import OmegaConf
 
 from tr_learn.data.datamodule import PlateDataModuleTrain, PlateDataset
+from tr_learn.log_set import init_logging
 from tr_learn.model.cls_model import PlateClassification
 from tr_learn.trainer.cls_trainer import ClsTrainer
 
+torchvision.disable_beta_transforms_warning()
 
-@hydra.main(".", "params", version_base="1.3")
+
+@hydra.main("configs", "train", version_base="1.3")
 def main(config):
     L.seed_everything(config.seed)
 
     exp_dir = pathlib.Path(config.exp_dir)
     exp_dir.mkdir(exist_ok=True, parents=True)
-
-    if "train_load_info" in config.datamodule:
-        config.datamodule.train_load_info.transform = config.transforms.train_transform
-    else:
-        raise RuntimeError("Cannot find 'train_load_info' in the datamodule config")
-
-    if "valid_load_info" in config.datamodule:
-        config.datamodule.valid_load_info.transform = config.transforms.valid_transform
 
     datamodule: PlateDataModuleTrain = hydra.utils.instantiate(config.datamodule)
     inner_model: PlateClassification = hydra.utils.instantiate(config.model)
@@ -63,4 +59,5 @@ def main(config):
 
 if __name__ == "__main__":
     load_dotenv()
+    init_logging("log_settings.yaml")
     main()

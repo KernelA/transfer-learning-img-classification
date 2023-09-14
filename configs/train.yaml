@@ -8,7 +8,7 @@ defaults:
   - scheduler: step
   - model: plate_cls
   - datamodule: plates_train_valid
-  - transforms: resnext
+  - transforms: plates
   - logger: tensorboard
   - loss: bce
   - _self_
@@ -16,10 +16,12 @@ defaults:
 datamodule:
   train_load_info:
     batch_size: 8
+    transforms: ${transforms.train_transform}
   valid_load_info:
     batch_size: 8
+    transforms: ${transforms.valid_transform}
   predict_load_info:
-    transform: ${transforms.valid_transform}
+    transforms: ${transforms.test_transform}
 
 exp_dir: ./exp/cls_training
 
