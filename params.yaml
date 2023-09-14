@@ -1,11 +1,11 @@
 optimizer:
   _target_: torch.optim.AdamW
-  lr: 0.001
+  lr: 0.01
   amsgrad: true
   weight_decay: 0.001
 scheduler:
   _target_: torch.optim.lr_scheduler.StepLR
-  step_size: 10
+  step_size: 5
   gamma: 0.5
 model:
   _target_: tr_learn.model.cls_model.PlateClassification
@@ -21,8 +21,6 @@ datamodule:
     transforms:
     - _target_: torch.nn.Sequential
       _args_:
-      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-        p: 1.0
       - _target_: torchvision.transforms.v2.RandomResizedCrop
         _convert_: partial
         size:
@@ -42,7 +40,7 @@ datamodule:
           - 1.2
         antialias: true
       - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
+      - _target_: torchvision.transforms.v2.Normalize
         _convert_: partial
         mean:
         - 0.485
@@ -75,7 +73,7 @@ datamodule:
           - 1.2
         antialias: true
       - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
+      - _target_: torchvision.transforms.v2.Normalize
         _convert_: partial
         mean:
         - 0.485
@@ -111,7 +109,7 @@ datamodule:
         contrast: 0.5
         brightness: 0.5
       - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
+      - _target_: torchvision.transforms.v2.Normalize
         _convert_: partial
         mean:
         - 0.485
@@ -151,7 +149,43 @@ datamodule:
         contrast: 0.5
         brightness: 0.5
       - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
+      - _target_: torchvision.transforms.v2.Normalize
+        _convert_: partial
+        mean:
+        - 0.485
+        - 0.456
+        - 0.406
+        std:
+        - 0.229
+        - 0.224
+        - 0.225
+    - _target_: torch.nn.Sequential
+      _args_:
+      - _target_: torchvision.transforms.v2.RandomRotation
+        degrees: 45
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+      - _target_: torchvision.transforms.v2.RandomResizedCrop
+        _convert_: partial
+        size:
+        - 224
+        interpolation:
+          _target_: tr_learn.data.transforms.to_interpolation_mode
+          mode: BILINEAR
+        scale:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.5
+          - 1.0
+        ratio:
+          _target_: tr_learn.data.transforms.to_tuple
+          items:
+          - 0.9
+          - 1.2
+        antialias: true
+      - _target_: tr_learn.data.transforms.convert_dtype
+      - _target_: torchvision.transforms.v2.Normalize
         _convert_: partial
         mean:
         - 0.485
@@ -170,137 +204,18 @@ datamodule:
     transforms:
     - _target_: torch.nn.Sequential
       _args_:
-      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-        p: 1.0
-      - _target_: torchvision.transforms.v2.RandomResizedCrop
-        _convert_: partial
-        size:
-        - 224
+      - _target_: torchvision.transforms.v2.Resize
         interpolation:
           _target_: tr_learn.data.transforms.to_interpolation_mode
           mode: BILINEAR
-        scale:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.5
-          - 1.0
-        ratio:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.9
-          - 1.2
+        _convert_: partial
         antialias: true
-      - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
-        _convert_: partial
-        mean:
-        - 0.485
-        - 0.456
-        - 0.406
-        std:
-        - 0.229
-        - 0.224
-        - 0.225
-    - _target_: torch.nn.Sequential
-      _args_:
-      - _target_: torchvision.transforms.v2.RandomVerticalFlip
-        p: 1.0
-      - _target_: torchvision.transforms.v2.RandomResizedCrop
-        _convert_: partial
         size:
         - 224
-        interpolation:
-          _target_: tr_learn.data.transforms.to_interpolation_mode
-          mode: BILINEAR
-        scale:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.5
-          - 1.0
-        ratio:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.9
-          - 1.2
-        antialias: true
+      - _target_: torchvision.transforms.v2.CenterCrop
+        size: 224
       - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
-        _convert_: partial
-        mean:
-        - 0.485
-        - 0.456
-        - 0.406
-        std:
-        - 0.229
-        - 0.224
-        - 0.225
-    - _target_: torch.nn.Sequential
-      _args_:
-      - _target_: torchvision.transforms.v2.RandomResizedCrop
-        _convert_: partial
-        size:
-        - 224
-        interpolation:
-          _target_: tr_learn.data.transforms.to_interpolation_mode
-          mode: BILINEAR
-        scale:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.5
-          - 1.0
-        ratio:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.9
-          - 1.2
-        antialias: true
-      - _target_: torchvision.transforms.v2.ColorJitter
-        hue: 0.5
-        saturation: 0.25
-        contrast: 0.5
-        brightness: 0.5
-      - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
-        _convert_: partial
-        mean:
-        - 0.485
-        - 0.456
-        - 0.406
-        std:
-        - 0.229
-        - 0.224
-        - 0.225
-    - _target_: torch.nn.Sequential
-      _args_:
-      - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-        p: 0.6
-      - _target_: torchvision.transforms.v2.RandomVerticalFlip
-        p: 0.6
-      - _target_: torchvision.transforms.v2.RandomResizedCrop
-        _convert_: partial
-        size:
-        - 224
-        interpolation:
-          _target_: tr_learn.data.transforms.to_interpolation_mode
-          mode: BILINEAR
-        scale:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.5
-          - 1.0
-        ratio:
-          _target_: tr_learn.data.transforms.to_tuple
-          items:
-          - 0.9
-          - 1.2
-        antialias: true
-      - _target_: torchvision.transforms.v2.ColorJitter
-        hue: 0.5
-        saturation: 0.25
-        contrast: 0.5
-        brightness: 0.5
-      - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
+      - _target_: torchvision.transforms.v2.Normalize
         _convert_: partial
         mean:
         - 0.485
@@ -319,7 +234,7 @@ datamodule:
     transforms:
     - _target_: torch.nn.Sequential
       _args_:
-      - _target_: torchvision.transforms.Resize
+      - _target_: torchvision.transforms.v2.Resize
         interpolation:
           _target_: tr_learn.data.transforms.to_interpolation_mode
           mode: BILINEAR
@@ -327,10 +242,10 @@ datamodule:
         antialias: true
         size:
         - 224
-      - _target_: torchvision.transforms.CenterCrop
+      - _target_: torchvision.transforms.v2.CenterCrop
         size: 224
       - _target_: tr_learn.data.transforms.convert_dtype
-      - _target_: torchvision.transforms.Normalize
+      - _target_: torchvision.transforms.v2.Normalize
         _convert_: partial
         mean:
         - 0.485
@@ -352,7 +267,7 @@ transforms:
   - 0.225
   normalize_transform:
   - _target_: tr_learn.data.transforms.convert_dtype
-  - _target_: torchvision.transforms.Normalize
+  - _target_: torchvision.transforms.v2.Normalize
     _convert_: partial
     mean:
     - 0.485
@@ -384,8 +299,6 @@ transforms:
   augment_transforms:
   - _target_: torch.nn.Sequential
     _args_:
-    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-      p: 1.0
     - _target_: torchvision.transforms.v2.RandomResizedCrop
       _convert_: partial
       size:
@@ -405,7 +318,7 @@ transforms:
         - 1.2
       antialias: true
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -438,7 +351,7 @@ transforms:
         - 1.2
       antialias: true
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -474,7 +387,7 @@ transforms:
       contrast: 0.5
       brightness: 0.5
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -514,7 +427,43 @@ transforms:
       contrast: 0.5
       brightness: 0.5
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomRotation
+      degrees: 45
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -527,8 +476,6 @@ transforms:
   train_transform:
   - _target_: torch.nn.Sequential
     _args_:
-    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-      p: 1.0
     - _target_: torchvision.transforms.v2.RandomResizedCrop
       _convert_: partial
       size:
@@ -548,7 +495,7 @@ transforms:
         - 1.2
       antialias: true
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -581,7 +528,7 @@ transforms:
         - 1.2
       antialias: true
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -617,7 +564,7 @@ transforms:
       contrast: 0.5
       brightness: 0.5
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -657,7 +604,43 @@ transforms:
       contrast: 0.5
       brightness: 0.5
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
+      _convert_: partial
+      mean:
+      - 0.485
+      - 0.456
+      - 0.406
+      std:
+      - 0.229
+      - 0.224
+      - 0.225
+  - _target_: torch.nn.Sequential
+    _args_:
+    - _target_: torchvision.transforms.v2.RandomRotation
+      degrees: 45
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+    - _target_: torchvision.transforms.v2.RandomResizedCrop
+      _convert_: partial
+      size:
+      - 224
+      interpolation:
+        _target_: tr_learn.data.transforms.to_interpolation_mode
+        mode: BILINEAR
+      scale:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.5
+        - 1.0
+      ratio:
+        _target_: tr_learn.data.transforms.to_tuple
+        items:
+        - 0.9
+        - 1.2
+      antialias: true
+    - _target_: tr_learn.data.transforms.convert_dtype
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -670,137 +653,18 @@ transforms:
   valid_transform:
   - _target_: torch.nn.Sequential
     _args_:
-    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-      p: 1.0
-    - _target_: torchvision.transforms.v2.RandomResizedCrop
-      _convert_: partial
-      size:
-      - 224
+    - _target_: torchvision.transforms.v2.Resize
       interpolation:
         _target_: tr_learn.data.transforms.to_interpolation_mode
         mode: BILINEAR
-      scale:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.5
-        - 1.0
-      ratio:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.9
-        - 1.2
+      _convert_: partial
       antialias: true
-    - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
-      _convert_: partial
-      mean:
-      - 0.485
-      - 0.456
-      - 0.406
-      std:
-      - 0.229
-      - 0.224
-      - 0.225
-  - _target_: torch.nn.Sequential
-    _args_:
-    - _target_: torchvision.transforms.v2.RandomVerticalFlip
-      p: 1.0
-    - _target_: torchvision.transforms.v2.RandomResizedCrop
-      _convert_: partial
       size:
       - 224
-      interpolation:
-        _target_: tr_learn.data.transforms.to_interpolation_mode
-        mode: BILINEAR
-      scale:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.5
-        - 1.0
-      ratio:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.9
-        - 1.2
-      antialias: true
+    - _target_: torchvision.transforms.v2.CenterCrop
+      size: 224
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
-      _convert_: partial
-      mean:
-      - 0.485
-      - 0.456
-      - 0.406
-      std:
-      - 0.229
-      - 0.224
-      - 0.225
-  - _target_: torch.nn.Sequential
-    _args_:
-    - _target_: torchvision.transforms.v2.RandomResizedCrop
-      _convert_: partial
-      size:
-      - 224
-      interpolation:
-        _target_: tr_learn.data.transforms.to_interpolation_mode
-        mode: BILINEAR
-      scale:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.5
-        - 1.0
-      ratio:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.9
-        - 1.2
-      antialias: true
-    - _target_: torchvision.transforms.v2.ColorJitter
-      hue: 0.5
-      saturation: 0.25
-      contrast: 0.5
-      brightness: 0.5
-    - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
-      _convert_: partial
-      mean:
-      - 0.485
-      - 0.456
-      - 0.406
-      std:
-      - 0.229
-      - 0.224
-      - 0.225
-  - _target_: torch.nn.Sequential
-    _args_:
-    - _target_: torchvision.transforms.v2.RandomHorizontalFlip
-      p: 0.6
-    - _target_: torchvision.transforms.v2.RandomVerticalFlip
-      p: 0.6
-    - _target_: torchvision.transforms.v2.RandomResizedCrop
-      _convert_: partial
-      size:
-      - 224
-      interpolation:
-        _target_: tr_learn.data.transforms.to_interpolation_mode
-        mode: BILINEAR
-      scale:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.5
-        - 1.0
-      ratio:
-        _target_: tr_learn.data.transforms.to_tuple
-        items:
-        - 0.9
-        - 1.2
-      antialias: true
-    - _target_: torchvision.transforms.v2.ColorJitter
-      hue: 0.5
-      saturation: 0.25
-      contrast: 0.5
-      brightness: 0.5
-    - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485
@@ -813,7 +677,7 @@ transforms:
   test_transform:
   - _target_: torch.nn.Sequential
     _args_:
-    - _target_: torchvision.transforms.Resize
+    - _target_: torchvision.transforms.v2.Resize
       interpolation:
         _target_: tr_learn.data.transforms.to_interpolation_mode
         mode: BILINEAR
@@ -821,10 +685,10 @@ transforms:
       antialias: true
       size:
       - 224
-    - _target_: torchvision.transforms.CenterCrop
+    - _target_: torchvision.transforms.v2.CenterCrop
       size: 224
     - _target_: tr_learn.data.transforms.convert_dtype
-    - _target_: torchvision.transforms.Normalize
+    - _target_: torchvision.transforms.v2.Normalize
       _convert_: partial
       mean:
       - 0.485

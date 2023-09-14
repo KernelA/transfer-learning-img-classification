@@ -1,4 +1,4 @@
 _target_: torch.optim.AdamW
-lr: 1.0e-3
+lr: 1.0e-2
 amsgrad: true
 weight_decay: 1.0e-3

@@ -16,44 +16,44 @@ stages:
       size: 40
     - path: ./configs/extract_data.yaml
       hash: md5
-      md5: 96365832bce80fc16c79d6e55fc43ab3
-      size: 1130
+      md5: 598e6138494daff8386c4dced2cb55a6
+      size: 173
     - path: ./data/raw/in/platesv2.zip
       hash: md5
       md5: b93a300cde18590c34da5f67fadffbb9
       size: 49320836
     - path: ./extract_data.py
       hash: md5
-      md5: f9c1892b7fce5a1ecce8f1fd49be2d7a
-      size: 2734
+      md5: 7a98064895c860062a11513a964959ab
+      size: 4059
     outs:
     - path: ./data/raw/plates
       hash: md5
-      md5: 785b8ff70dfae8b8f2af339a8ef5f1d2.dir
-      size: 137017499
-      nfiles: 4784
+      md5: 70a4cef35fdd511b00360d6e12b7add8.dir
+      size: 20085044
+      nfiles: 784
   train:
     cmd: python ./train.py
     deps:
     - path: ./data/raw/plates
       hash: md5
-      md5: 785b8ff70dfae8b8f2af339a8ef5f1d2.dir
-      size: 137017499
-      nfiles: 4784
+      md5: 70a4cef35fdd511b00360d6e12b7add8.dir
+      size: 20085044
+      nfiles: 784
     - path: ./train.py
       hash: md5
-      md5: eb732870e93e1fee8faecaaaeaa5758b
-      size: 2445
+      md5: 31cbe5925562a2c266a36bec820ab1a2
+      size: 2226
     - path: params.yaml
       hash: md5
-      md5: 9908c89996b01de91dfc9d1ecaab5dc4
-      size: 3726
+      md5: 7d07aa07d41c7c37ea3d4f8d43d85fad
+      size: 19332
     outs:
     - path: ./exp/cls_training
       hash: md5
-      md5: 3e54455ce93682696b9ff0579e7a6a86.dir
-      size: 90931870
-      nfiles: 5
+      md5: 914186151163c411bca5335ebbb075b4.dir
+      size: 137405344
+      nfiles: 6
   prediction:
     cmd: python ./prediction.py
     deps:
@@ -64,6 +64,6 @@ stages:
     outs:
     - path: ./data/subm
       hash: md5
-      md5: 5b0059835167ff2f97a93d0339a98170.dir
-      size: 18860
-      nfiles: 2
+      md5: c761f9a13aeb00375ec376a77bcaa249.dir
+      size: 28290
+      nfiles: 3
